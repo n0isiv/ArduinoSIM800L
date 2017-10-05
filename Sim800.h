@@ -35,7 +35,7 @@
 #define TRUE                    1
 #define FALSE                   0
 
-#define DEFAULT_TIMEOUT         5000
+#define DEFAULT_TIMEOUT         100
 
 
 /** SIM800 class.

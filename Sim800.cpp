@@ -68,7 +68,7 @@ int SIM800::readBuffer(char *buffer, int count, unsigned int timeOut)
             break;
         }
     }
-    // delay(500);
+
     while(serialSIM800.available()) {
         serialSIM800.read();
     }
@@ -128,7 +128,7 @@ void SIM800::sendEndMark(void)
 
 int SIM800::sendCmdAndWaitForResp(const char* cmd, const char *resp, unsigned timeout)
 {
-    // delay(1000);
+    delay(50);
     sendCmd(cmd);
     return waitForResp(resp,timeout);
 }
