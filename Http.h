@@ -41,7 +41,7 @@ enum Result {
   ERROR_HTTP_PARA = 9,
   ERROR_HTTP_GET = 10,
   ERROR_HTTP_READ = 11,
-  ERROR_HTTP_CLOSE = 12,
+  ERROR_HTTP_TERM = 12,
   ERROR_HTTP_POST = 13,
   ERROR_HTTP_DATA = 14,
   ERROR_HTTP_CONTENT = 15,
@@ -59,6 +59,8 @@ class HTTP : public SIM800 {
     Result configureBearer(const char *apn);
     Result connect();
     Result disconnect();
+    Result init();
+    Result term();
     Result get(const char *uri, char *response);
     Result post(const char *uri, const char *body, char *response);
     void sleep();

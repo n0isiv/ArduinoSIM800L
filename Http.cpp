@@ -40,7 +40,7 @@
 #define HTTP_POST "AT+HTTPACTION=1\n"
 #define HTTP_DATA "AT+HTTPDATA=%d,%d\r\n"
 #define HTTP_READ "AT+HTTPREAD\r\n"
-#define HTTP_CLOSE "AT+HTTPTERM\r\n"
+#define HTTP_TERM "AT+HTTPTERM\r\n"
 #define HTTP_CONTENT "AT+HTTPPARA=\"CONTENT\",\"application/json\"\r\n"
 #define HTTPS_ENABLE "AT+HTTPSSL=1\r\n"
 #define HTTPS_DISABLE "AT+HTTPSSL=0\r\n"
@@ -104,9 +104,6 @@ Result HTTP::connect() {
     }
   }
 
-  if (sendCmdAndWaitForResp(HTTP_INIT, OK, 2000) == FALSE)
-    result = ERROR_HTTP_INIT;
-
   return result;
 }
 
@@ -116,25 +113,42 @@ Result HTTP::disconnect() {
 
   if (sendCmdAndWaitForResp(CLOSE_GPRS_CONTEXT, OK, 2000) == FALSE)
     result = ERROR_CLOSE_GPRS_CONTEXT;
-  if (sendCmdAndWaitForResp(HTTP_CLOSE, OK, 2000) == FALSE)
-    result = ERROR_HTTP_CLOSE;
 
   return result;
 }
 
-Result HTTP::post(const char *uri, const char *body, char *response) {
+Result HTTP::init(void) {
+  Result result = SUCCESS;
+
+  if (sendCmdAndWaitForResp(HTTP_INIT, OK, 2000) == FALSE) {
+    result = ERROR_HTTP_INIT;
+  }
+
+  return result;
+}
+
+Result HTTP::term(void) {
+  Result result = SUCCESS;
+
+  if (sendCmdAndWaitForResp(HTTP_TERM, OK, 2000) == FALSE) {
+    result = ERROR_HTTP_TERM;
+  }
+
+  return result;
+}
+
+Result HTTP::post(const char *uri, const char *body, char* response) {
 
   Result result = setHTTPSession(uri);
 
   char httpData[32];
-  unsigned int delayToDownload = 10000;
-  sprintf(httpData, HTTP_DATA, strlen(body), 10000);
+  unsigned int delayToDownload = 1000;
+  sprintf(httpData, HTTP_DATA, strlen(body), delayToDownload);
   if (sendCmdAndWaitForResp(httpData, DOWNLOAD, 2000) == FALSE){
     result = ERROR_HTTP_DATA;
   }
 
   purgeSerial();
-  delay(500);
   sendCmd(body);
 
   if (sendCmdAndWaitForResp(HTTP_POST, HTTP_200, delayToDownload) == TRUE) {
@@ -149,14 +163,14 @@ Result HTTP::post(const char *uri, const char *body, char *response) {
   return result;
 }
 
-Result HTTP::get(const char *uri, char *response) {
+Result HTTP::get(const char *uri, char* response) {
 
   Result result = setHTTPSession(uri);
 
   if (sendCmdAndWaitForResp(HTTP_GET, HTTP_200, 2000) == TRUE) {
     sendCmd(HTTP_READ);
-    result = SUCCESS;
     readResponse(response);
+    result = SUCCESS;
   }
   else {
     result = ERROR_HTTP_GET;
@@ -228,7 +242,6 @@ void HTTP::readResponse(char *response){
 }
 
 void HTTP::parseJSONResponse(const char *buffer, unsigned int bufferSize, char *response){
-
   int start_index = 0;
   int i = 0;
   while (i < bufferSize - 1 && start_index == 0) {
