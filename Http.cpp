@@ -200,7 +200,7 @@ void HTTP::readVoltage(char *voltage){
     unsigned int voltageOffset = 7;
     unsigned int voltageValueStartIndex = twoPointsIndex + voltageOffset;
     unsigned int voltageSize = 4;
-    for (int i = voltageValueStartIndex; i < voltageValueStartIndex + voltageSize; ++i){
+    for (unsigned int i = voltageValueStartIndex; i < voltageValueStartIndex + voltageSize; ++i){
       voltage[i - voltageValueStartIndex] = buffer[i];
       voltage[i - voltageValueStartIndex + 1] = '\0';
     }
@@ -243,7 +243,7 @@ void HTTP::readResponse(char *response){
 
 void HTTP::parseJSONResponse(const char *buffer, unsigned int bufferSize, char *response){
   int start_index = 0;
-  int i = 0;
+  unsigned int i = 0;
   while (i < bufferSize - 1 && start_index == 0) {
     char c = buffer[i];
     if ('{' == c){
